@@ -6,14 +6,14 @@
 # install cargo-generate
 $ cargo install cargo-generate
 # use template
-$ cargo generate tyr-rust-bootcamp/template
+$ cargo generate WITstudio86/rust-template
 ```
 
 ## install pre-commit
 
 - install pre-commit
 
-```shell
+```shell   “‘壳
 brew install pre-commit
 # or
 pipx install pre-commit
@@ -28,30 +28,30 @@ $ pre-commit install
 
 ## cargo denny
 
-we need to install cargo deny
+we need to install cargo deny我们需要安装防货器
 
 ```shell
 # run cargo denny
 cargo install --locked cargo-deny
-```
+```   ｀｀｀
 
 ## typos
 
-```shell
+```shell   “‘壳   “‘壳
 cargo install --locked cargo-typos
-```
+```   ｀｀｀
 
 ## git cliff
 
-```shell
+```shell   “‘壳   “‘壳
 cargo install --locked git-cliff
-```
+```   ｀｀｀
 
 ## nextest
 
-```shell
+```shell   “‘壳   “‘壳
 cargo install --locked nextest
-```
+```   ｀｀｀
 
 ## The role of files
 
