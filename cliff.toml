@@ -5,25 +5,38 @@
 # 定义 Changelog 文件的头部内容
 header = """
 # Changelog\n
-All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
+All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.\n
 """
 # 定义 Changelog 正文的模板，使用 Tera 模板语言
 # Tera 模板语言文档: https://keats.github.io/tera/docs/#introduction
 body = """
 ---
-{% if version %}
-    {% if previous.version %}
+{% if version %}\
+    {% if previous.version %}\
         ## [{{ version | trim_start_matches(pat="v") }}]($REPO/compare/{{ previous.version }}..{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
-    {% else %}
+    {% else %}\
         ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
-    {% endif %}
-{% else %}
+    {% endif %}\
+{% else %}\
     ## [unreleased]
-{% endif %}
+{% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | striptags | trim | upper_first }}
-    ...
-{% endfor %}
+    {% for commit in commits
+    | filter(attribute="scope")
+    | sort(attribute="scope") %}
+        - **({{commit.scope}})**{% if commit.breaking %} [**breaking**]{% endif %} \
+            {{ commit.message|trim }} - ([{{ commit.id | truncate(length=7, end="") }}]($REPO/commit/{{ commit.id }})) - {{ commit.author.name }}
+    {%- endfor -%}
+    {% raw %}\n{% endraw %}\
+    {%- for commit in commits %}
+        {%- if commit.scope -%}
+        {% else -%}
+            - {% if commit.breaking %} [**breaking**]{% endif %}\
+                {{ commit.message|trim }} - ([{{ commit.id | truncate(length=7, end="") }}]($REPO/commit/{{ commit.id }})) - {{ commit.author.name }}
+        {% endif -%}
+    {% endfor -%}
+{% endfor %}\n
 """
 # 定义 Changelog 文件的尾部内容
 footer = """
@@ -33,12 +46,12 @@ footer = """
 trim = true
 # 定义 postprocessors，用于替换模板中的变量或模式
 postprocessors = [
-    # 替换 $REPO 为实际的仓库地址
-    { pattern = '\$REPO', replace = "https://github.com/WITstudio86/" },
+    # # 替换 $REPO 为实际的仓库地址
+    { pattern = '\$REPO', replace = "https://github.com/WITstudio86/" }, # replace repository URL
 ]
 
 [git]
-# 是否解析遵循 conventional commits 规范的提交
+# # 是否解析遵循 conventional commits 规范的提交
 conventional_commits = true
 # 是否过滤掉非 conventional commits 规范的提交
 filter_unconventional = false
@@ -49,11 +62,22 @@ commit_preprocessors = [
     # 替换 Issue 编号为链接形式
     # { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](https://github.com/orhun/git-cliff/issues/${2}))" },
 ]
-# 解析和分组提交的正则表达式列表
+# # 解析和分组提交的正则表达式列表
 commit_parsers = [
-    # 定义如何根据提交消息分组
     { message = "\\[skip", skip = true },
-    # 定义其他分组规则...
+    { message = "\\p{Han}", skip = true },
+    { message = "^feat", group = "Features" },
+    { message = "^fix", group = "Bug Fixes" },
+    { message = "^doc", group = "Documentation" },
+    { message = "^perf", group = "Performance" },
+    { message = "^refactor", group = "Refactoring" },
+    { message = "^style", group = "Style" },
+    { message = "^revert", group = "Revert" },
+    { message = "^test", group = "Tests" },
+    { message = "^chore\\(version\\):", skip = true },
+    { message = "^chore", group = "Miscellaneous Chores" },
+    { message = ".*", group = "Other" },
+    { body = ".*security", group = "Security" },
 ]
 # 是否保护破坏性更改不被跳过
 protect_breaking_commits = false
